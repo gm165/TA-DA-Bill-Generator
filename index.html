@@ -130,10 +130,9 @@
 
     const searchParams = new URLSearchParams(formData);
 
-    fetch(WEB_APP_URL, {
-      method: "POST",
-      body: searchParams,
-      headers: { "Content-Type": "application/x-www-form-urlencoded" }
+    // Is tareeqe se data hamesha safe parameters mein jayega aur JSON error nahi dega
+    fetch(WEB_APP_URL + "?" + searchParams.toString(), {
+      method: "POST"
     })
     .then(response => response.text())
     .then(downloadUrl => {
