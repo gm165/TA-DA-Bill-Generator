@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BISE TA/DA Bill System</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { background-color: #f1f5f9; padding: 20px; font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+    .content-wrapper { flex: 1; }
+    .form-container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 850px; margin: 20px auto 40px auto; }
+    .section-title { color: #1e3d59; border-bottom: 2px solid #1e3d59; padding-bottom: 5px; margin-bottom: 20px; font-weight: 600; font-size: 1.2rem; }
+    .btn-custom { background-color: #1e3d59; color: white; padding: 12px; font-weight: bold; width: 100%; margin-top: 20px; }
+    .btn-custom:hover { background-color: #122538; color: white; }
+    #loader { display: none; text-align: center; margin-top: 20px; }
+    
+    /* Footer Styling */
+    footer { background-color: #1e3d59; color: #f1f5f9; padding: 20px 0; font-size: 0.9rem; border-top: 4px solid #ffc107; margin-top: auto; }
+    footer a { color: #ffc107; text-decoration: none; font-weight: 500; }
+    footer a:hover { color: white; text-decoration: underline; }
+    .footer-divider { border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 10px; }
+  </style>
+</head>
+<body>
+
+<div class="content-wrapper">
+  <div class="container">
+    <div class="form-container">
+      <h2 class="text-center mb-4" style="color: #1e3d59; font-weight: bold;">BISE TA / DA Bill Data Portal</h2>
+      
+      <form id="tadaForm" onsubmit="handleFormSubmit(this); return false;">
+        <div class="section-title">Personal & Professional Information</div>
+        <div class="row">
+          <div class="col-md-6 mb-3"><label class="form-label">Full Name</label><input type="text" class="form-control" name="name" required></div>
+          <div class="col-md-6 mb-3"><label class="form-label">CNIC</label><input type="text" class="form-control" name="cnic" placeholder="35201-XXXXXXX-X" required></div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3"><label class="form-label">Education / Qualification</label><input type="text" class="form-control" name="education" required></div>
+          <div class="col-md-6 mb-3"><label class="form-label">Designation</label><input type="text" class="form-control" name="designation" required></div>
+        </div>
+        <div class="row">
+          <div class="col-md-4 mb-3"><label class="form-label">BPS (Scale)</label><input type="number" class="form-control" name="bps" required></div>
+          <div class="col-md-4 mb-3"><label class="form-label">Basic Pay (Rs.)</label><input type="number" class="form-control" name="basic_pay" required></div>
+          <div class="col-md-4 mb-3"><label class="form-label">Your School Name</label><input type="text" class="form-control" name="school" required></div>
+        </div>
+
+        <div class="section-title">Journey & Center Details</div>
+        <div class="row">
+          <div class="col-md-4 mb-3"><label class="form-label">Purpose of Journey</label><input type="text" class="form-control" name="purpose" required></div>
+          <div class="col-md-4 mb-3"><label class="form-label">Workshop / Training Center Name</label><input type="text" class="form-control" name="center_name" required></div>
+          <div class="col-md-4 mb-3"><label class="form-label">Exam Center Name</label><input type="text" class="form-control" name="exam_center_name" required></div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3"><label class="form-label">Distance to Training Center (KM)</label><input type="number" class="form-control" name="dist_training" required></div>
+          <div class="col-md-6 mb-3"><label class="form-label">Distance to Exam Center (KM)</label><input type="number" class="form-control" name="dist_exam" required></div>
+        </div>
+
+        <div class="section-title">Duty Schedule & Holidays</div>
+        <div class="row">
+          <div class="col-md-4 mb-3"><label class="form-label">Training Date</label><input type="date" class="form-control" name="training_date" required></div>
+          <div class="col-md-4 mb-3"><label class="form-label">Start Date (Duty)</label><input type="date" class="form-control" name="start_date" id="startDate" required></div>
+          <div class="col-md-4 mb-3"><label class="form-label">End Date (Duty)</label><input type="date" class="form-control" name="end_date" id="endDate" required></div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Gazetted Holidays (Comma se alag karein)</label>
+          <input type="text" class="form-control" name="holidays" placeholder="e.g. 2026-05-28">
+        </div>
+
+        <button type="submit" class="btn btn-custom" id="submitBtn">Generate Official TA/DA Bill PDF</button>
+      </form>
+      
+      <div id="loader">
+        <div class="spinner-border text-dark" role="status"></div>
+        <p class="mt-2">Generating and downloading your PDF. Please wait...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="customAlert" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+  <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+    <div style="font-size: 50px; color: #28a745; margin-bottom: 15px;">✓</div>
+    <h4 style="color: #1e3d59; font-weight: bold; margin-bottom: 15px;">Zabardast!</h4>
+    <p style="color: #555; font-size: 1.1rem; margin-bottom: 20px;">Bill successfully generate ho chuka hai aur download folder mein save ho rha hai.</p>
+    <button onclick="closeCustomAlert()" class="btn btn-success" style="padding: 8px 30px; font-weight: bold;">OK</button>
+  </div>
+</div>
+
+<footer>
+  <div class="container text-center">
+    <div class="row justify-content-center align-items-center">
+      <div class="col-md-8">
+        <h5><i class="fa-solid fa-circle-info"></i> About This Portal</h5>
+        <p class="mb-1">Yeh automatic system BISE examinations aur training duties ke TA/DA bills ko barwaqt aur asaan tareeqe se generate karne ke liye bnaya gaya hai.</p>
+        <p class="mb-0"><strong>Developed By:</strong> Ghulam Muhammad (Senior School Teacher & Full-Stack Developer)</p>
+      </div>
+    </div>
+    <div class="footer-divider">
+      <span>© 2026 All Rights Reserved</span> | 
+      <a href="https://wa.me/923336283082" target="_blank" class="ms-2 text-success font-weight-bold">
+        <i class="fa-brands fa-whatsapp"></i> Contact Support via WhatsApp
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Aapka naya Web App URL yahan secure tarike se integrate ho gaya hai
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxUFY5mH2MYEi2P0ily2__6XfLj8mW9UeTL5XE4aw-Nmv3qPe_rNSifbBpUaIJSEa30_Q/exec";
+
+  function closeCustomAlert() {
+    document.getElementById('customAlert').style.display = 'none';
+  }
+
+  function handleFormSubmit(formObject) {
+    var start = new Date(document.getElementById('startDate').value);
+    var end = new Date(document.getElementById('endDate').value);
+    if (end < start) {
+      alert("Error: End Date hamesha Start Date ke baad ki honi chahiye.");
+      return;
+    }
+
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('loader').style.display = 'block';
+    
+    const formData = {};
+    const inputs = formObject.querySelectorAll('input');
+    inputs.forEach(input => { formData[input.name] = input.value; });
+
+    const searchParams = new URLSearchParams(formData);
+
+    fetch(WEB_APP_URL, {
+      method: "POST",
+      body: searchParams,
+      headers: { "Content-Type": "application/x-www-form-urlencoded" }
+    })
+    .then(response => response.text())
+    .then(downloadUrl => {
+      document.getElementById('submitBtn').disabled = false;
+      document.getElementById('loader').style.display = 'none';
+      
+      if(downloadUrl.startsWith("http")) {
+        // Direct file ko user ke device par standard download pipeline mein push karna
+        window.location.href = downloadUrl;
+        document.getElementById('customAlert').style.display = 'flex';
+        formObject.reset();
+      } else {
+        alert("System Response Error: " + downloadUrl);
+      }
+    })
+    .catch(error => {
+      document.getElementById('submitBtn').disabled = false;
+      document.getElementById('loader').style.display = 'none';
+      alert("Network Connection Error: " + error);
+    });
+  }
+</script>
+
+</body>
+</html>
