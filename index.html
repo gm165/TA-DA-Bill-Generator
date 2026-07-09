@@ -14,15 +14,12 @@
     .btn-custom { background-color: #1e3d59; color: white; padding: 12px; font-weight: bold; width: 100%; margin-top: 20px; }
     .btn-custom:hover { background-color: #122538; color: white; }
     #loader { display: none; text-align: center; margin-top: 20px; }
-    
-    /* Live Counter Badge */
     .counter-badge { background-color: #ffc107; color: #1e3d59; font-weight: bold; padding: 6px 15px; border-radius: 20px; font-size: 0.9rem; display: inline-block; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    
-    /* Footer Styling */
     footer { background-color: #1e3d59; color: #f1f5f9; padding: 20px 0; font-size: 0.9rem; border-top: 4px solid #ffc107; margin-top: auto; }
     footer a { color: #ffc107; text-decoration: none; font-weight: 500; }
     footer a:hover { color: white; text-decoration: underline; }
     .footer-divider { border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 10px; }
+    .optional-text { color: #6c757d; font-size: 0.85rem; font-style: italic; }
   </style>
 </head>
 <body>
@@ -34,7 +31,7 @@
       <div class="text-center">
         <h2 class="mb-2" style="color: #1e3d59; font-weight: bold;">BISE TA / DA Bill Data Portal</h2>
         <div class="counter-badge" id="liveCounterBox">
-          <i class="fa-solid fa-calculator"></i> Total Bills Processed: <span id="billCount">Loading...</span>
+          <i class="fa-solid fa-calculator"></i> Total Bills Processed: <span id="billCount">Active</span>
         </div>
       </div>
       
@@ -57,17 +54,17 @@
         <div class="section-title">Journey & Center Details</div>
         <div class="row">
           <div class="col-md-4 mb-3"><label class="form-label">Purpose of Journey</label><input type="text" class="form-control" name="purpose" required></div>
-          <div class="col-md-4 mb-3"><label class="form-label">Workshop / Training Center Name</label><input type="text" class="form-control" name="center_name" required></div>
+          <div class="col-md-4 mb-3"><label class="form-label">Workshop / Training Center <span class="optional-text">(Optional)</span></label><input type="text" class="form-control" name="center_name"></div>
           <div class="col-md-4 mb-3"><label class="form-label">Exam Center Name</label><input type="text" class="form-control" name="exam_center_name" required></div>
         </div>
         <div class="row">
-          <div class="col-md-6 mb-3"><label class="form-label">Distance to Training Center (KM)</label><input type="number" class="form-control" name="dist_training" required></div>
+          <div class="col-md-6 mb-3"><label class="form-label">Distance to Training Center <span class="optional-text">(Optional - KM)</span></label><input type="number" class="form-control" name="dist_training"></div>
           <div class="col-md-6 mb-3"><label class="form-label">Distance to Exam Center (KM)</label><input type="number" class="form-control" name="dist_exam" required></div>
         </div>
 
         <div class="section-title">Duty Schedule & Holidays</div>
         <div class="row">
-          <div class="col-md-4 mb-3"><label class="form-label">Training Date</label><input type="date" class="form-control" name="training_date" required></div>
+          <div class="col-md-4 mb-3"><label class="form-label">Training Date <span class="optional-text">(Optional)</span></label><input type="date" class="form-control" name="training_date"></div>
           <div class="col-md-4 mb-3"><label class="form-label">Start Date (Duty)</label><input type="date" class="form-control" name="start_date" id="startDate" required></div>
           <div class="col-md-4 mb-3"><label class="form-label">End Date (Duty)</label><input type="date" class="form-control" name="end_date" id="endDate" required></div>
         </div>
@@ -115,13 +112,7 @@
 </footer>
 
 <script>
-  // Deployed Web App URL
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz_QuelovRVQcCgGwKKG5QaGPkwLZDUkvuIVT9xuyc3e4KgBC8_uU-6tua0dkw0SXsQ/exec";
-
-  // Page load hote hi agar initial count show karna chahein (Optional placeholder value)
-  window.addEventListener('load', function() {
-     document.getElementById('billCount').innerText = "Active";
-  });
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby320fh07iNmS0fcppe5Ongx8BZSwerAnX4ZzJfc5TanYIGW8FIgEx4wSMB_ssp2ZZm0w/exec";
 
   function closeCustomAlert() {
     document.getElementById('customAlert').style.display = 'none';
@@ -152,16 +143,12 @@
       document.getElementById('submitBtn').disabled = false;
       document.getElementById('loader').style.display = 'none';
       
-      // Response ko pipe symbol se split karna -> [downloadUrl, count]
       const parts = rawResponse.split('|');
       const downloadUrl = parts[0];
       const latestCount = parts[1] || "Updated";
       
       if(downloadUrl.startsWith("http")) {
-        // UI Counter update karein live
         document.getElementById('billCount').innerText = latestCount;
-        
-        // Download pipeline trigger karein
         window.location.href = downloadUrl;
         document.getElementById('customAlert').style.display = 'flex';
         formObject.reset();
